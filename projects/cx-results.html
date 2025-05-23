@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyclocross Results Analysis | Kirk Corwin</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="nav-brand">Kirk Corwin</div>
+      <nav>
+        <ul class="nav">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="project-detail">
+      <h1>Cyclocross Results Analysis</h1>
+      <p><strong>Repository:</strong> <a href="https://github.com/KirkCorwin/cx-results-analysis" target="_blank">View on GitHub</a></p>
+
+      <p>This project dives into anonymized cyclocross racing data from multiple seasons to explore rider performance trends, detect outliers, and build predictive models based on past performance.</p>
+
+      <h2>Goals</h2>
+      <ul>
+        <li>Detect anomalously fast performances using statistical and ML-based methods</li>
+        <li>Predict race outcomes using historical rider data only</li>
+        <li>Normalize lap times relative to age and gender groups for fairer comparison</li>
+      </ul>
+
+   
+      <h2>Model Comparison: Fast Outliers vs Full Field</h2>
+
+      <h3>Predicted vs Actual</h3>
+      <div class="comparison-row">
+        <div class="comparison-column">
+          <img src="../images/cx-plots/predicted_vs_actual_relative.png" alt="Fast Outliers: Predicted vs Actual">
+          <p class="caption">Fast Outliers</p>
+        </div>
+        <div class="comparison-column">
+          <img src="../images/cx-plots/predicted_vs_actual_relative_full.png" alt="Full Field: Predicted vs Actual">
+          <p class="caption">Full Field</p>
+        </div>
+      </div>
+
+      <h3>Prediction Error Distribution</h3>
+      <div class="comparison-row">
+        <div class="comparison-column">
+          <img src="../images/cx-plots/prediction_error_distribution.png" alt="Fast Outliers: Error Distribution">
+          <p class="caption">Fast Outliers</p>
+        </div>
+        <div class="comparison-column">
+          <img src="../images/cx-plots/error_distribution_relative_time_full.png" alt="Full Field: Error Distribution">
+          <p class="caption">Full Field</p>
+        </div>
+      </div>
+
+      <h3>Residuals vs Predicted</h3>
+      <div class="comparison-row">
+        <div class="comparison-column">
+          <img src="../images/cx-plots/residuals_vs_predicted.png" alt="Fast Outliers: Residuals">
+          <p class="caption">Fast Outliers</p>
+        </div>
+        <div class="comparison-column">
+          <img src="../images/cx-plots/residuals_vs_predicted_full.png" alt="Full Field: Residuals">
+          <p class="caption">Full Field</p>
+        </div>
+      </div>
+
+      <h2>Key Visualizations</h2>
+
+      <h3>Isolation Forest Anomaly Detection</h3>
+      <img src="../images/cx-plots/isolation_forest_decision_surface.png" alt="Isolation Forest Surface" class="project-image">
+      <p>Visualizing the isolation forest decision function helps identify riders whose performance is unusually fast for their age. These insights could be useful for talent identification or error checking in race timing data.</p>
+
+      <h3>Category aware anomaly detection</h3>
+      <img src="../images/cx-plots/fast_outlier_scatter.png" alt="Isolation Forest Surface" class="project-image">
+      <p>By also accounting for category, outliers controlled by category and demographic group can be located.</p>
+
+
+      <h2>Methods</h2>
+      <ul>
+        <li>Z-Score and Isolation Forest for anomaly detection</li>
+        <li>Random Forest regression to predict normalized lap times</li>
+        <li>Relative performance calculated against peer groups (same age/gender)</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>Historical relative performance is a strong predictor of future results</li>
+        <li>Outliers are harder to predict but can be flagged with confidence</li>
+        <li>Normalization by demographic peer group ensures fairness in modeling</li>
+      </ul>
+
+      <h2>Explore More</h2>
+      <p>Check out the <a href="https://github.com/KirkCorwin/cx-results-analysis" target="_blank">full notebook and code here</a>.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Kirk Corwin. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+
+</html>

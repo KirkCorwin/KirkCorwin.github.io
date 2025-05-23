@@ -99,3 +99,46 @@
       font-size: 0.9rem;
       color: #666;
     }
+
+     .project-image {
+      max-width: 100%;
+      height: auto;
+      margin: 1rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .project-detail img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .project-detail {
+      padding-bottom: 2rem;
+    }
+
+    .project-image {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.comparison-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin: 1rem 0;
+}
+
+.comparison-column {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+.comparison-column img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
