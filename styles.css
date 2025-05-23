@@ -1,0 +1,101 @@
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+    }
+
+    .header-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      flex: 0 0 25%;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0056b3;
+    }
+
+    .nav {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 2rem;
+      flex: 1;
+    }
+
+    .nav li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .nav li a:hover {
+      color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .nav {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .nav-brand {
+        flex: none;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .hero {
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      max-width: 600px;
+      margin: auto;
+      color: #555;
+    }
+
+    footer {
+      background-color: #ffffff;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
