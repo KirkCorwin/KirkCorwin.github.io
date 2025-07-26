@@ -5,7 +5,119 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kirk Corwin | Data Science Portfolio</title>
   <link rel="stylesheet" href="styles.css" />
-  
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      /* background: #646464; */
+      overflow: hidden;
+      position: relative;
+    }
+    .monster {
+      position: absolute;
+      width: 100px;
+      height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: grab;
+      transform-origin: center;
+      user-select: none; /* Prevent text selection during drag */
+    }
+    .head {
+      width: 100px;
+      height: 90px;
+      background-color: gray;
+      border-radius: 50% 50% 15% 15%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .eyes {
+      display: flex;
+      gap: 20px;
+      z-index: 1;
+    }
+    .eye {
+      width: 20px;
+      height: 20px;
+      background: rgb(59, 0, 0);
+      border-radius: 50%;
+    }
+    .eye.blinking {
+    height: 2px;
+    background: black;
+    }
+    .mouth {
+      width: 30px;
+      height: 10px;
+      background: black;
+      border-radius: 0 0 15px 15px;
+      position: absolute;
+      bottom: 10px;
+      transition: all 0.2s;
+    }
+    .mouth.surprised {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      bottom: 20px;
+    }
+    .paws {
+      display: flex;
+      gap: 28px;
+      margin-top: -5px;
+    }
+    .paw {
+      width: 22px;
+      height: 13px;
+      background-color: #222;
+      border-radius: 10px;
+    }
+    .paw {
+      animation: pawSteps 0.5s infinite alternate;
+    }
+    .paw:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    @keyframes pawSteps {
+      0% {
+        transform: translateY(-6px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+    #monster1 .head {
+      background-color: #a372b8;
+      width: 100px;
+      height: 80px;
+    }
+    #monster2 .head {
+      background-color: #d49b4f;
+      width: 100px;
+      height: 70px;
+    }
+    #monster3 .head {
+      background-color: #67b186;
+      width: 100px;
+      height: 90px;
+    }
+    .horns {
+      position: absolute;
+      top: 0px;
+      display: flex;
+      gap: 10px;
+    }
+    .horn {
+      width: 10px;
+      height: 20px;
+      background: #222;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -32,5 +144,309 @@
   <footer class="container">
     <p>&copy; 2025 Kirk Corwin</p>
   </footer>
+
+  <audio
+    id="squish-sound"
+    src="audio/horror-body-drop-152091.mp31"
+  ></audio>
+
+  <div class="monster" id="monster1">
+    <div class="head">
+      <div class="horns">
+        <div class="horn"></div><div class="horn"></div>
+      </div>
+      <div class="eyes">
+        <div class="eye"></div><div class="eye"></div>
+      </div>
+      <div class="mouth"></div>
+    </div>
+    <div class="paws"><div class="paw"></div><div class="paw"></div></div>
+  </div>
+
+  <div class="monster" id="monster2">
+    <div class="head">
+      <div class="horns">
+        <div class="horn" style="transform: rotate(30deg)"></div>
+        <div class="horn" style="transform: rotate(-30deg)"></div>
+      </div>
+      <div class="eyes">
+        <div class="eye"></div><div class="eye"></div>
+      </div>
+      <div class="mouth"></div>
+    </div>
+    <div class="paws"><div class="paw"></div><div class="paw"></div></div>
+  </div>
+
+  <div class="monster" id="monster3">
+    <div class="head">
+      <div class="horns">
+        <div class="horn" style="height: 15px; background: red"></div>
+        <div class="horn" style="height: 15px; background: red"></div>
+      </div>
+      <div class="eyes">
+        <div class="eye"></div><div class="eye"></div>
+      </div>
+      <div class="mouth"></div>
+    </div>
+    <div class="paws"><div class="paw"></div><div class="paw"></div></div>
+  </div>
+
+  <script>
+    const monsters = [
+      { id: "monster1", speed: 0.01 },
+      { id: "monster2", speed: 0.005 },
+      { id: "monster3", speed: 0.002 },
+    ];
+
+    const squish = document.getElementById("squish-sound");
+    let mouseX = window.innerWidth / 2;
+
+    // Global drag tracking variables
+    let draggedMonster = null;
+    let dragHistory = [];
+
+    document.addEventListener("mousemove", (e) => {
+      mouseX = e.clientX;
+
+      if (draggedMonster) {
+        dragHistory.push({ x: e.clientX, y: e.clientY, time: performance.now() });
+        if (dragHistory.length > 20) dragHistory.shift();
+
+        const targetX = e.clientX - draggedMonster.offsetX;
+        const targetY = e.clientY - draggedMonster.offsetY;
+        draggedMonster.x += (targetX - draggedMonster.x) * 0.2;
+        draggedMonster.y += (targetY - draggedMonster.y) * 0.2;
+
+        draggedMonster.vx = 0;
+        draggedMonster.vy = 0;
+      }
+    });
+
+    document.addEventListener("touchstart", (e) => {
+        if (e.touches.length > 0) {
+            mouseX = e.touches[0].clientX;
+        }
+    });
+
+    monsters.forEach((monster) => {
+      const el = document.getElementById(monster.id);
+      monster.el = el;
+      monster.x = window.innerWidth * Math.random();
+        // monster.y = window.innerHeight - 120;
+        const baseY = window.innerHeight - 120;
+        const headOffsets = { monster1: 10, monster2: 20, monster3: 0 }; // tweak as needed
+        monster.y = baseY + (headOffsets[monster.id] || 0);
+      monster.vx = 0;
+      monster.vy = 0;
+      monster.rotation = 0;
+      monster.rotationSpeed = 0;
+      monster.dragging = false;
+      monster.recovering = false;
+
+      el.addEventListener("mousedown", (e) => {
+        draggedMonster = monster;
+        monster.dragging = true;
+        monster.offsetX = e.offsetX;
+        monster.offsetY = e.offsetY;
+        el.style.cursor = "grabbing";
+        dragHistory = [{ x: e.clientX, y: e.clientY, time: performance.now() }];
+      });
+      el.addEventListener("touchstart", (e) => {
+        e.preventDefault(); // Important: prevents scroll!
+        const touch = e.touches[0];
+        draggedMonster = monster;
+        monster.dragging = true;
+
+        const rect = monster.el.getBoundingClientRect();
+        monster.offsetX = touch.clientX - rect.left;
+        monster.offsetY = touch.clientY - rect.top;
+
+        dragHistory = [{ x: touch.clientX, y: touch.clientY, time: performance.now() }];
+      });
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (draggedMonster) {
+        draggedMonster.dragging = false;
+        draggedMonster.recovering = true;
+
+        const half = Math.floor(dragHistory.length / 2);
+        const recent = dragHistory.slice(half);
+        if (recent.length > 1) {
+          const dx = recent[recent.length - 1].x - recent[0].x;
+          const dy = recent[recent.length - 1].y - recent[0].y;
+          const dt = (recent[recent.length - 1].time - recent[0].time) / 1000;
+          if (dt > 0) {
+            draggedMonster.vx = (dx / dt) * 0.0035;
+            draggedMonster.vy = (dy / dt) * 0.0032;
+            draggedMonster.rotationSpeed = draggedMonster.vx * 0.1;
+          }
+        }
+
+        draggedMonster.el.querySelector(".mouth").classList.add("surprised");
+        draggedMonster.el.style.cursor = "grab";
+
+        draggedMonster = null;
+        dragHistory = [];
+      }
+    });
+
+    document.addEventListener("touchend", () => {
+      if (draggedMonster) {
+        draggedMonster.dragging = false;
+        draggedMonster.recovering = true;
+
+        const half = Math.floor(dragHistory.length / 2);
+        const recent = dragHistory.slice(half);
+        if (recent.length > 1) {
+          const dx = recent[recent.length - 1].x - recent[0].x;
+          const dy = recent[recent.length - 1].y - recent[0].y;
+          const dt = (recent[recent.length - 1].time - recent[0].time) / 1000;
+          if (dt > 0) {
+            draggedMonster.vx = (dx / dt) * 0.0035;
+            draggedMonster.vy = (dy / dt) * 0.0032;
+            draggedMonster.rotationSpeed = draggedMonster.vx * 0.1;
+          }
+        }
+
+        draggedMonster.el.querySelector(".mouth").classList.add("surprised");
+        draggedMonster = null;
+        dragHistory = [];
+      }
+    });
+
+    document.addEventListener("touchmove", (e) => {
+      if (draggedMonster && e.touches.length > 0) {
+        e.preventDefault();
+        const touch = e.touches[0];
+
+        dragHistory.push({ x: touch.clientX, y: touch.clientY, time: performance.now() });
+        if (dragHistory.length > 20) dragHistory.shift();
+
+        const targetX = touch.clientX - draggedMonster.offsetX;
+        const targetY = touch.clientY - draggedMonster.offsetY;
+        draggedMonster.x += (targetX - draggedMonster.x) * 0.2;
+        draggedMonster.y += (targetY - draggedMonster.y) * 0.2;
+
+        draggedMonster.vx = 0;
+        draggedMonster.vy = 0;
+      }
+    });
+
+    // Set average blink frequency per monster in seconds
+    monsters[0].blinkFrequency = 3;  // Monster 1 blinks ~every 6s
+    monsters[1].blinkFrequency = 5; // Monster 2 blinks ~every 12s
+    monsters[2].blinkFrequency = 6; // Monster 3 blinks ~every 20s
+
+    function startBlinking(monster) {
+    const eyes = monster.el.querySelectorAll('.eye');
+
+    function blink() {
+        eyes.forEach(eye => eye.classList.add('blinking'));
+        setTimeout(() => {
+        eyes.forEach(eye => eye.classList.remove('blinking'));
+        }, 150); // Blink duration
+
+        const minDelay = monster.blinkFrequency * 0.5 * 1000;
+        const maxDelay = monster.blinkFrequency * 2.5 * 1000;
+        const nextDelay = Math.random() * (maxDelay - minDelay) + minDelay;
+        setTimeout(blink, nextDelay);
+    }
+
+    setTimeout(blink, Math.random() * 2000 + 1000); // Start with slight random delay
+    }
+
+    // Start blinking for each monster
+    monsters.forEach(startBlinking);
+
+    function animate() {
+      monsters.forEach((monster, i) => {
+        if (!monster.dragging) {
+          if (!monster.recovering) {
+            const wander = (Math.random() - 0.5) * 0.125;
+            monster.vx += ((mouseX - monster.x) * monster.speed * 0.25 + wander) * 0.05;
+          }
+
+          monster.vy += 0.5;
+          monster.x += monster.vx;
+          monster.y += monster.vy;
+          monster.rotation += monster.rotationSpeed;
+          monster.rotationSpeed *= 0.98;
+
+          if (monster.x <= 0) {
+            monster.x = 0;
+            monster.vx = -monster.vx * 0.6;
+            monster.vx = Math.sign(monster.vx) * Math.max(Math.abs(monster.vx), monster.speed);
+            monster.rotationSpeed *= -0.5;
+          } else if (monster.x >= window.innerWidth - 100) {
+            monster.x = window.innerWidth - 100;
+            monster.vx = -monster.vx * 0.6;
+            monster.vx = Math.sign(monster.vx) * Math.max(Math.abs(monster.vx), monster.speed);
+            monster.rotationSpeed *= -0.5;
+          }
+
+          if (monster.y >= window.innerHeight - 120) {
+            if (monster.vy > 2) squish.play();
+            // monster.y = window.innerHeight - 120;
+            const baseY = window.innerHeight - 120;
+            const headOffsets = { monster1: 10, monster2: 20, monster3: 0 }; // tweak as needed
+            monster.y = baseY + (headOffsets[monster.id] || 0);
+            monster.vy *= -0.3;
+            if (Math.abs(monster.vy) < 1) {
+              monster.vy = 0;
+              monster.rotationSpeed = 0;
+              const rot = Math.abs(monster.rotation % 360);
+              if (rot > 45 && rot < 135) {
+                monster.rotationSpeed = -5;
+                monster.vy = -5;
+              } else {
+                monster.rotation = 0;
+                monster.el.querySelector(".mouth").classList.remove("surprised");
+                monster.recovering = false;
+              }
+            }
+          }
+
+          for (let j = 0; j < monsters.length; j++) {
+            if (i === j) continue;
+            const other = monsters[j];
+            const dx = monster.x + 50 - (other.x + 50);
+            const dy = monster.y + 70 - (other.y + 70);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+              const angle = Math.atan2(dy, dx);
+              const overlap = 100 - dist;
+              monster.x += Math.cos(angle) * (overlap / 2);
+              monster.y += Math.sin(angle) * (overlap / 2);
+              other.x -= Math.cos(angle) * (overlap / 2);
+              other.y -= Math.sin(angle) * (overlap / 2);
+
+              monster.vx *= 0.7;
+              if (Math.abs(monster.vx) < monster.speed) {
+                monster.vx = Math.sign(monster.vx) * monster.speed || monster.speed;
+              }
+            }
+          }
+
+          const speed = Math.abs(monster.vx);
+          const footSpeed = Math.max(0.2, 1 - speed * 10);
+          monster.el.querySelectorAll(".foot").forEach((foot) => {
+            foot.style.animationDuration = `${footSpeed}s`;
+          });
+          monster.el.querySelectorAll(".paw").forEach((paw) => {
+            paw.style.animationDuration = `${footSpeed}s`;
+          });
+        }
+
+        monster.el.style.left = `${monster.x}px`;
+        monster.el.style.top = `${monster.y}px`;
+        monster.el.style.transform = `rotate(${monster.rotation}deg)`;
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
 </body>
 </html>
