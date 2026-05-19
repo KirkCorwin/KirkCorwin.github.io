@@ -1,74 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kirk Corwin | Projects</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | Kirk Corwin</title>
+  <meta name="description" content="Selected data science and software projects by Kirk Corwin.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
 </head>
-<body>
-  <header>
-    <div class="container header-inner">
-      <div class="nav-brand">Kirk Corwin</div>
-      <nav>
-        <ul class="nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-<main class="container">
-  <section class="projects-section">
-    <h2>Featured Projects</h2>
+<body data-page="projects">
+  <div id="site-root"></div>
+  <div id="page-content">
+    <h1>Projects</h1>
+    <p class="page-intro">
+      A selection of analytics and software work. Each project emphasizes clear methodology, reproducible code where possible, and outcomes that matter for the domain.
+    </p>
 
-    <div class="project">
-      <img class='project-image-small' src="images/cx-plots/predicted_vs_actual_relative_full.png" alt="Full Field: Predicted vs Actual">
-      <h3><a href="projects/cx-results.html">Cyclocross Results Analysis</a></h3>
-      <p>
-        A data science pipeline for detecting performance anomalies and modeling race outcomes using peer-normalized metrics.
-        Includes historical analysis, predictive modeling, and visual exploration.
-        <br />
-        <a href="https://github.com/KirkCorwin/cx-results-analysis" target="_blank">View on GitHub →</a>
-      </p>
-    </div>
+    <div class="project-grid">
+      <article class="project-card">
+        <span class="badge">Shipped</span>
+        <h3><a href="projects/cx-results.html">Cyclocross Results Analysis</a></h3>
+        <p>
+          Pipeline for detecting performance anomalies and modeling race outcomes using peer-normalized metrics.
+          Includes historical analysis, predictive modeling, and visual exploration.
+        </p>
+        <div class="tags">
+          <span class="tag">Python</span>
+          <span class="tag">Pandas</span>
+          <span class="tag">scikit-learn</span>
+          <span class="tag">Isolation Forest</span>
+        </div>
+        <div class="card-links">
+          <a href="projects/cx-results.html">Read more</a>
+          <a href="https://github.com/KirkCorwin/cx-results-analysis" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </article>
 
-    <div class="project">
-      <img src="images/bike-service.png" alt="Bike Service Project" class="project-image">
-      <h3><a href="projects/bike-service.html">Bike Service Archiving System (In Progress)</a></h3>
-      <p>
-        Full-stack Django application for managing mechanic service checklists. Mobile-first design with API integration
-        for POS ticket syncing and searchable historical records.
-      </p>
-    </div>
+      <article class="project-card">
+        <span class="badge">In progress</span>
+        <h3>Bike Service Archiving System</h3>
+        <p>
+          Full-stack Django application for mechanic service checklists. Mobile-first design with API integration
+          for POS ticket syncing and searchable historical records.
+        </p>
+        <div class="tags">
+          <span class="tag">Django</span>
+          <span class="tag">REST</span>
+          <span class="tag">PostgreSQL</span>
+        </div>
+        <div class="card-links">
+          <a href="projects/service_checklist/checklist.html" target="_blank">Checklist demo</a>
+        </div>
+      </article>
 
-    <div class="project">
-      <img src="images/nlp-project.png" alt="NLP Project" class="project-image">
-      <h3><a href="projects/nlp.html">Natural Language Processing Project</a></h3>
-      <p>
-        Ongoing exploration of sentiment analysis, tokenization strategies, and document classification using modern NLP tools.
-        Focused on applying rule-based and transformer-based methods.
-      </p>
-    </div>
+      <article class="project-card">
+        <span class="badge">In progress</span>
+        <h3>Natural Language Processing</h3>
+        <p>
+          Exploration of sentiment analysis, tokenization, and document classification using rule-based and
+          transformer-oriented approaches.
+        </p>
+        <div class="tags">
+          <span class="tag">Python</span>
+          <span class="tag">NLP</span>
+        </div>
+      </article>
 
-    <div class="project">
-      <img src="images/tbd.png" alt="TBD Project" class="project-image">
-      <h3><a href="projects/tbd.html">To Be Determined</a></h3>
-      <p>
-        A future project exploring an area yet to be finalized—possibly real-time dashboards, computer vision, or reinforcement learning.
-        Check back for updates.
-      </p>
+      <article class="project-card">
+        <span class="badge">Planned</span>
+        <h3>Future project</h3>
+        <p>
+          Space for upcoming work—possibly real-time dashboards, computer vision, or reinforcement learning experiments.
+        </p>
+        <div class="tags">
+          <span class="tag">TBD</span>
+        </div>
+      </article>
     </div>
-
-  </section>
-</main>
-
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2025 Kirk Corwin. All rights reserved.</p>
-    </div>
-  </footer>
+  </div>
+  <script src="js/layout.js"></script>
 </body>
 </html>

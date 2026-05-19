@@ -4,33 +4,77 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kirk Corwin | Data Science Portfolio</title>
-  <link rel="stylesheet" href="styles.css" />
-  
+  <meta name="description" content="Kirk Corwin — data science and applied machine learning portfolio. Projects, skills, and contact.">
+  <meta property="og:title" content="Kirk Corwin | Portfolio">
+  <meta property="og:description" content="Data science portfolio: analytics, ML pipelines, and software projects.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
 </head>
-<body>
-  <header>
-    <div class="container header-inner">
-      <div class="nav-brand">Kirk Corwin</div>
-      <nav>
-        <ul class="nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
+<body data-page="home">
+  <div id="site-root"></div>
+  <div id="page-content">
     <section class="hero">
-      <h1>Data Science Portfolio</h1>
-      <p>Welcome to my personal data science portfolio. I'm Kirk Corwin - a data science student passionate about machine learning, data visualization, and building practical tools with real-world impact.</p>
+      <h1>Kirk Corwin</h1>
+      <p class="role">Data science &amp; applied machine learning</p>
+      <p class="lead">
+        I build reliable tools for exploring data, training models, and communicating results.
+        Focused on practical analytics, clean pipelines, and software people can actually use.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="contact.html">Get in touch</a>
+        <a class="btn btn-secondary" href="projects.html">View projects</a>
+      </div>
     </section>
-  </main>
 
-  <footer class="container">
-    <p>&copy; 2025 Kirk Corwin</p>
-  </footer>
+    <section class="section">
+      <h2>What I do</h2>
+      <ul class="bullet-list">
+        <li>Design data pipelines and predictive models with clear evaluation metrics</li>
+        <li>Build dashboards and applications that make analysis actionable</li>
+        <li>Translate messy real-world constraints into maintainable code</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Featured work</h2>
+      <div class="project-grid">
+        <article class="project-card">
+          <span class="badge">Shipped</span>
+          <h3><a href="projects/cx-results.html">Cyclocross Results Analysis</a></h3>
+          <p>Peer-normalized race analytics, anomaly detection, and predictive modeling on historical cyclocross data.</p>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">scikit-learn</span>
+            <span class="tag">Pandas</span>
+          </div>
+          <div class="card-links">
+            <a href="projects/cx-results.html">Case study</a>
+            <a href="https://github.com/KirkCorwin/cx-results-analysis" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </article>
+        <article class="project-card">
+          <span class="badge">In progress</span>
+          <h3>Bike Service Archiving System</h3>
+          <p>Django app for mechanic checklists, POS sync, and searchable service history.</p>
+          <div class="tags">
+            <span class="tag">Django</span>
+            <span class="tag">REST</span>
+          </div>
+          <div class="card-links">
+            <a href="projects/service_checklist/checklist.html" target="_blank">Demo</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-strip">
+      <p>Interested in collaborating or discussing a role?</p>
+      <a class="btn btn-primary" href="contact.html">Email me</a>
+    </section>
+  </div>
+  <script src="js/layout.js"></script>
 </body>
 </html>

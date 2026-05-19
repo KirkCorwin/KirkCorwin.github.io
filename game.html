@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dungeon Game | Kirk Corwin</title>
+  <meta name="description" content="Skullboy Dungeon — a small browser dungeon crawler on Kirk Corwin's portfolio.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body data-page="game" data-skully="off">
+  <div id="site-root"></div>
+  <div id="page-content" class="game-page">
+    <h1>Skullboy Dungeon</h1>
+    <p class="page-intro">
+      A small dungeon crawler built for the portfolio site. Clear three rooms, collect upgrades, and reach the exit.
+    </p>
+    <p id="game-hint" class="game-controls-legend"></p>
+    <p class="game-controls-legend">
+      Move: <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> —
+      Jump: <kbd>Space</kbd> —
+      Attack: <kbd>Z</kbd> or <kbd>J</kbd>
+    </p>
+
+    <div class="game-wrap">
+      <div class="game-canvas-wrap">
+        <canvas id="game-canvas" width="800" height="480" tabindex="0" aria-label="Dungeon game"></canvas>
+        <button type="button" class="btn btn-primary" id="game-start" style="margin-top:0.75rem">Start game</button>
+        <div class="touch-controls">
+          <div class="touch-dpad">
+            <span class="spacer"></span>
+            <button type="button" data-game-btn="jump">Jump</button>
+            <span class="spacer"></span>
+            <button type="button" data-game-btn="left">←</button>
+            <button type="button" data-game-btn="attack">Atk</button>
+            <button type="button" data-game-btn="right">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/layout.js"></script>
+  <script type="module" src="js/game/main.js"></script>
+</body>
+</html>

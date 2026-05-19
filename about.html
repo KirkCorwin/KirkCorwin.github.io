@@ -3,37 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kirk Corwin | About</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>About | Kirk Corwin</title>
+  <meta name="description" content="About Kirk Corwin — background, skills, and focus areas in data science and software.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
 </head>
-<body>
-  <header>
-    <div class="container header-inner">
-      <div class="nav-brand">Kirk Corwin</div>
-      <nav>
-        <ul class="nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="projects.html">Projects</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+<body data-page="about">
+  <div id="site-root"></div>
+  <div id="page-content">
+    <h1>About</h1>
+    <p class="page-intro">
+      Computer science student at North Seattle College with a focus on data science and applied machine learning.
+    </p>
 
-  <main class="about-section, container">
-    <section class="container">
-      <h2>About Me</h2>
-      <p>I'm Kirk Corwin, a Computer Science student focused on data science at North Seattle College. My background in economics, art, and technical roles in bike mechanics gives me a unique, hands-on perspective on problem solving.</p>
-      <p>I build clean, reliable tools for exploring and communicating data. I work in Python, SQL, and Java, with tools like Pandas, Scikit-learn, Tableau, and Django. I have experience with machine learning workflows, data cleaning, and building user-oriented applications.</p>
-      <p>My interest is in applied AI—solving real-world problems where data and computation meet practical constraints. I thrive on cross-disciplinary projects and collaborative teams, and I’m always iterating and learning.</p>
+    <section class="section">
+      <h2>Background</h2>
+      <p>
+        My path combines economics, art, and hands-on technical work in bike mechanics. That mix shapes how I approach
+        problems: understand the system, build something testable, and communicate results clearly.
+      </p>
+      <p>
+        I develop clean, reliable tools for exploring and presenting data. I work primarily in Python and SQL, with
+        experience in Java, Django, and common ML and visualization stacks.
+      </p>
+      <p>
+        I am most interested in applied AI—projects where data and computation meet real constraints, not just benchmark scores.
+      </p>
     </section>
-  </main>
 
-  <footer>
-    <div class="footer-content">
-      <p>&copy; 2025 Kirk Corwin. All rights reserved.</p>
-    </div>
-  </footer>
+    <section class="section">
+      <h2>Skills</h2>
+      <ul class="skills-grid">
+        <li class="tag">Python</li>
+        <li class="tag">SQL</li>
+        <li class="tag">Java</li>
+        <li class="tag">Pandas</li>
+        <li class="tag">NumPy</li>
+        <li class="tag">scikit-learn</li>
+        <li class="tag">Django</li>
+        <li class="tag">Tableau</li>
+        <li class="tag">Git</li>
+        <li class="tag">Data cleaning</li>
+        <li class="tag">Predictive modeling</li>
+        <li class="tag">NLP (exploring)</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Interests</h2>
+      <ul class="bullet-list">
+        <li>Cross-disciplinary analytics and visualization</li>
+        <li>ML workflows with reproducible evaluation</li>
+        <li>User-facing tools and mobile-friendly interfaces</li>
+      </ul>
+    </section>
+  </div>
+  <script src="js/layout.js"></script>
 </body>
 </html>

@@ -1,0 +1,89 @@
+.game-page h1 {
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.game-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.game-canvas-wrap {
+  flex: 1 1 400px;
+  max-width: 100%;
+}
+
+#game-canvas {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  display: block;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: #1e1c24;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+#game-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0.75rem 0;
+}
+
+.game-controls-legend {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.game-controls-legend kbd {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.touch-controls {
+  display: none;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.touch-controls button {
+  padding: 0.75rem 1rem;
+  min-width: 56px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.touch-controls button:active {
+  background: var(--accent-soft);
+}
+
+.touch-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  gap: 4px;
+}
+
+.touch-dpad .spacer {
+  visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .touch-controls {
+    display: flex;
+    flex-direction: column;
+  }
+}
