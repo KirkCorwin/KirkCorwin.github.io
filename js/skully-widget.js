@@ -56,12 +56,22 @@
   const MIN_PANEL_W = 220;
   const MIN_PANEL_H = 200;
   const TELEPORT_MS = reducedMotion ? 80 : 650;
+  const BEAM_STAGGER_MS = 90;
+  const BEAM_MAX_ANIMATED = 10;
+  const ROSTER_KEY = "skullyRoster";
+  const THROW_SCALE = 0.0035;
 
   let location = "widget";
   let teleporting = false;
   let mouseX = 0;
   let mouseY = 0;
   let monsters = [];
+  let dragHistory = [];
+  let saveRosterTimer = null;
+  let monsterDragging = false;
+  let pageBoundsDirty = true;
+  let lastPageSync = 0;
+  const PAGE_SYNC_MS = 200;
   let draggingPanel = false;
   let resizingPanel = false;
   let panelOx = 0;
@@ -132,6 +142,19 @@
     pageLayer.style.top = b.top + "px";
     pageLayer.style.width = b.width + "px";
     pageLayer.style.height = b.height + "px";
+    pageBoundsDirty = false;
+    lastPageSync = performance.now();
+  }
+
+  function syncPageLayerBoundsIfNeeded(force) {
+    if (location !== "page") return;
+    const now = performance.now();
+    if (!force && !pageBoundsDirty && now - lastPageSync < PAGE_SYNC_MS) return;
+    syncPageLayerBounds();
+  }
+
+  function markPageBoundsDirty() {
+    pageBoundsDirty = true;
   }
 
   function containerSize() {
@@ -144,11 +167,105 @@
     return { x: cx - r.left, y: cy - r.top };
   }
 
-  function clampMonster(m) {
+  function makePlayBounds(w, h) {
+    return {
+      w,
+      h,
+      maxX: Math.max(0, w - MONSTER_W),
+      groundY: Math.max(0, h - MONSTER_H),
+    };
+  }
+
+  function clampMonster(m, bounds) {
+    const b =
+      bounds ||
+      makePlayBounds(getActiveContainer().clientWidth, getActiveContainer().clientHeight);
+    m.x = Math.max(0, Math.min(b.maxX, m.x));
+    m.y = Math.max(0, Math.min(b.groundY, m.y));
+  }
+
+  function playableSize() {
     const { w, h } = containerSize();
-    const groundY = Math.max(0, h - MONSTER_H);
-    m.x = Math.max(0, Math.min(Math.max(0, w - MONSTER_W), m.x));
-    m.y = Math.max(0, Math.min(groundY, m.y));
+    return { pw: Math.max(1, w - MONSTER_W), ph: Math.max(1, h - MONSTER_H) };
+  }
+
+  function saveRoster() {
+    const { pw, ph } = playableSize();
+    const payload = {
+      v: 1,
+      location,
+      monsters: monsters.map((m) => {
+        if (!m.colors) {
+          const body = m.el.querySelector(".monster-body");
+          const skull = m.el.querySelector(".monster-skull > path");
+          const eye = m.el.querySelector(".monster-eye");
+          m.colors = {
+            body: body ? body.getAttribute("fill") : "",
+            skull: skull ? skull.getAttribute("fill") : "",
+            eye: eye ? eye.getAttribute("fill") : "",
+          };
+        }
+        const c = m.colors;
+        return {
+          nx: m.x / pw,
+          ny: m.y / ph,
+          vx: m.vx,
+          vy: m.vy,
+          facing: m.facing,
+          onGround: m.onGround,
+          body: c.body,
+          skull: c.skull,
+          eye: c.eye,
+        };
+      }),
+    };
+    try {
+      localStorage.setItem(ROSTER_KEY, JSON.stringify(payload));
+    } catch (_) {
+      /* quota */
+    }
+  }
+
+  function scheduleSaveRoster() {
+    clearTimeout(saveRosterTimer);
+    saveRosterTimer = setTimeout(saveRoster, 500);
+  }
+
+  function loadRoster() {
+    try {
+      const raw = localStorage.getItem(ROSTER_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.v !== 1 || !Array.isArray(data.monsters) || data.monsters.length === 0) return;
+
+      if (data.location === "page") {
+        location = "page";
+        markPageBoundsDirty();
+        syncPageLayerBounds();
+      } else {
+        location = "widget";
+      }
+
+      data.monsters.forEach((rec) => {
+        if (!rec.body || !rec.skull || !rec.eye) return;
+        const el = createMonsterElement(rec.body, rec.skull, rec.eye);
+        const { pw, ph } = playableSize();
+        const m = newMonsterState(el, {
+          x: (rec.nx ?? 0) * pw,
+          y: (rec.ny ?? 0) * ph,
+          vx: rec.vx ?? 0,
+          vy: rec.vy ?? 0,
+          facing: rec.facing ?? 1,
+          onGround: rec.onGround !== false,
+          colors: { body: rec.body, skull: rec.skull, eye: rec.eye },
+        });
+        clampMonster(m);
+        monsters.push(m);
+      });
+      updateCounter();
+    } catch (_) {
+      /* corrupt roster */
+    }
   }
 
   function clampPanelPos(left, top) {
@@ -238,23 +355,27 @@
     return div;
   }
 
-  function newMonsterState(el) {
+  function newMonsterState(el, overrides) {
     const { w } = containerSize();
+    const o = overrides || {};
+    const eyes = el.querySelectorAll(".monster-eye");
     return {
       el,
       head: el.querySelector(".monster-skull"),
-      x: Math.random() * Math.max(0, w - MONSTER_W),
-      y: 10,
-      vx: 0,
-      vy: 0,
-      facing: 1,
-      walkTime: 0,
+      eyes,
+      colors: o.colors || null,
+      x: o.x ?? Math.random() * Math.max(0, w - MONSTER_W),
+      y: o.y ?? 10,
+      vx: o.vx ?? 0,
+      vy: o.vy ?? 0,
+      facing: o.facing ?? 1,
+      walkTime: o.walkTime ?? 0,
       dragOffsetX: 0,
       dragOffsetY: 0,
       dragging: false,
       blinking: false,
-      onGround: true,
-      speed: 0.012,
+      onGround: o.onGround !== false,
+      speed: 0.01,
       facingTimer: 0,
     };
   }
@@ -319,6 +440,21 @@
     clampMonster(m);
   }
 
+  function forceCleanupTeleport(m) {
+    m.el.classList.remove("skully-teleporting", "skully-beam-out", "skully-beam-in");
+    m.el.style.removeProperty("--beam-dy");
+    m.dragging = false;
+  }
+
+  async function runBeamPhase(list, phase, beamUp) {
+    const capMs = (BEAM_MAX_ANIMATED - 1) * BEAM_STAGGER_MS + TELEPORT_MS + 80;
+    const tasks = list.map((m, i) =>
+      wait(i * BEAM_STAGGER_MS).then(() => playTeleportAnimation(m, phase, beamUp))
+    );
+    await Promise.race([Promise.all(tasks), wait(capMs)]);
+    list.forEach(forceCleanupTeleport);
+  }
+
   async function beamAll(targetLocation) {
     if (teleporting || monsters.length === 0) return;
     teleporting = true;
@@ -329,7 +465,10 @@
     const fromContainer = getActiveContainer();
     const toContainer = goingUp ? pageLayer : arena;
 
-    if (goingUp) syncPageLayerBounds();
+    if (goingUp) {
+      markPageBoundsDirty();
+      syncPageLayerBounds();
+    }
 
     const snapshot = monsters.map((m) => ({
       m,
@@ -338,9 +477,8 @@
       fromRect: fromContainer.getBoundingClientRect(),
     }));
 
-    await Promise.all(
-      snapshot.map(({ m }, i) => wait(i * 90).then(() => playTeleportAnimation(m, "out", goingUp)))
-    );
+    const outList = snapshot.map(({ m }) => m);
+    await runBeamPhase(outList, "out", goingUp);
 
     snapshot.forEach(({ m, fromX, fromY, fromRect }) => {
       const screenX = fromRect.left + fromX;
@@ -352,14 +490,13 @@
     location = targetLocation;
     updateBeamButton();
 
-    await Promise.all(
-      monsters.map((m, i) => wait(i * 90).then(() => playTeleportAnimation(m, "in", goingUp)))
-    );
+    await runBeamPhase(monsters, "in", goingUp);
 
     teleporting = false;
     beamBtn.disabled = false;
     document.getElementById("addMonsterBtn").disabled = false;
     savePanelState();
+    saveRoster();
   }
 
   beamBtn.addEventListener("click", () => {
@@ -370,19 +507,26 @@
 
   document.getElementById("addMonsterBtn").addEventListener("click", () => {
     if (teleporting) return;
-    const el = createMonsterElement(
-      randomHSL(currentSwatch[0], currentSwatch[1], currentSwatch[2], currentSwatch[3], currentSwatch[4], currentSwatch[5]),
-      randomHSL(0, 60, 60, 90, 90, 98),
-      randomHSL(0, 360, 20, 60, 0, 40)
-    );
-    monsters.push(newMonsterState(el));
+    const colors = {
+      body: randomHSL(currentSwatch[0], currentSwatch[1], currentSwatch[2], currentSwatch[3], currentSwatch[4], currentSwatch[5]),
+      skull: randomHSL(0, 60, 60, 90, 90, 98),
+      eye: randomHSL(0, 360, 20, 60, 0, 40),
+    };
+    const el = createMonsterElement(colors.body, colors.skull, colors.eye);
+    monsters.push(newMonsterState(el, { colors }));
     updateCounter();
+    scheduleSaveRoster();
   });
 
   document.getElementById("clearSkullysBtn").addEventListener("click", () => {
     monsters.forEach((m) => m.el.remove());
     monsters = [];
     updateCounter();
+    try {
+      localStorage.removeItem(ROSTER_KEY);
+    } catch (_) {
+      /* ignore */
+    }
   });
 
   document.getElementById("skully-collapse").addEventListener("click", () => {
@@ -394,52 +538,77 @@
     const now = performance.now();
     const dt = now - lastTime;
     lastTime = now;
-    if (location === "page") syncPageLayerBounds();
+    syncPageLayerBoundsIfNeeded(false);
 
-    const { w, h } = containerSize();
-    const groundY = Math.max(0, h - MONSTER_H);
+    const container = getActiveContainer();
+    const bounds = makePlayBounds(container.clientWidth, container.clientHeight);
+    const { maxX, groundY } = bounds;
 
     monsters.forEach((m) => {
       if (m.el.classList.contains("skully-teleporting")) return;
 
       m.walkTime += dt;
-      const bodyAngle = Math.sin(m.walkTime * 0.008) * 5;
-      const headAngle = Math.sin(m.walkTime * 0.02) * 2;
+      const isDragging = m.dragging;
+      const bodyAngle = Math.sin(m.walkTime * (isDragging ? 0.01 : 0.008)) * (isDragging ? 3 : 5);
+      const headAngle = Math.sin(m.walkTime * (isDragging ? 0.01 : 0.02)) * (isDragging ? 3 : 2);
 
       if (!m.dragging && !teleporting) {
-        const dist = Math.hypot(mouseX - m.x, mouseY - m.y);
-        if (dist < 120) {
-          m.vx += (mouseX - m.x) * m.speed * 0.035;
-          m.vy += (mouseY - m.y) * m.speed * 0.02;
+        const dxMouse = mouseX - m.x;
+        const dyMouse = mouseY - m.y;
+        const dist = Math.hypot(dxMouse, dyMouse);
+        if (dist < 350) {
+          m.vx += dxMouse * m.speed * 0.05;
+          m.vy += dyMouse * m.speed * 0.05;
         } else {
-          m.vx += (Math.random() - 0.5) * 0.08;
+          m.vx += (Math.random() - 0.5) * 0.2;
+          m.vy += (Math.random() - 0.5) * 0.2;
         }
-        m.vy += 0.35;
-        m.vx *= 0.98;
-        if (m.onGround && Math.random() < 0.0025) {
-          m.vy = -5 - Math.random() * 2;
+        m.vy += 0.5;
+        if (m.onGround && Math.random() < 0.003) {
+          m.vy -= 8 + Math.random() * 4;
           m.onGround = false;
         }
         m.x += m.vx;
         m.y += m.vy;
         if (m.x <= 0) {
           m.x = 0;
-          m.vx = Math.abs(m.vx) * 0.4;
+          m.vx *= -0.6;
         }
-        if (m.x >= w - MONSTER_W) {
-          m.x = w - MONSTER_W;
-          m.vx = -Math.abs(m.vx) * 0.4;
+        if (m.x >= maxX) {
+          m.x = maxX;
+          m.vx *= -0.6;
         }
         if (m.y > groundY) {
           m.y = groundY;
-          m.vy *= -0.25;
+          m.vy *= -0.3;
           m.onGround = true;
         }
-        clampMonster(m);
-        if (m.vx > 0.08) m.facing = -1;
-        if (m.vx < -0.08) m.facing = 1;
+        clampMonster(m, bounds);
+        let desiredFacing = m.facing;
+        if (m.vx > 0.1) desiredFacing = -1;
+        if (m.vx < -0.1) desiredFacing = 1;
+        if (desiredFacing !== m.facing) {
+          m.facingTimer += dt;
+          if (m.facingTimer >= 180) {
+            m.facing = desiredFacing;
+            m.facingTimer = 0;
+          }
+        } else {
+          m.facingTimer = 0;
+        }
       } else if (m.dragging) {
-        clampMonster(m);
+        clampMonster(m, bounds);
+      }
+
+      if (!m.blinking && !teleporting) {
+        if (Math.random() < 0.005) {
+          m.blinking = true;
+          m.eyes.forEach((eye) => eye.classList.add("blinking"));
+          setTimeout(() => {
+            m.eyes.forEach((eye) => eye.classList.remove("blinking"));
+            m.blinking = false;
+          }, 250 + Math.random() * 100);
+        }
       }
 
       m.el.style.transform = `translate(${m.x}px,${m.y}px) scaleX(${m.facing}) rotate(${bodyAngle}deg)`;
@@ -447,7 +616,30 @@
     });
     requestAnimationFrame(animate);
   }
-  animate();
+
+  function releaseDrag() {
+    if (!monsterDragging) return;
+    let threw = false;
+    monsters.forEach((m) => {
+      if (!m.dragging) return;
+      threw = true;
+      const half = Math.floor(dragHistory.length / 2);
+      const recent = dragHistory.slice(half);
+      if (recent.length > 1) {
+        const dx = recent[recent.length - 1].x - recent[0].x;
+        const dy = recent[recent.length - 1].y - recent[0].y;
+        const dt = (recent[recent.length - 1].time - recent[0].time) / 1000;
+        if (dt > 0) {
+          m.vx = (dx / dt) * THROW_SCALE;
+          m.vy = (dy / dt) * THROW_SCALE;
+        }
+      }
+      m.dragging = false;
+    });
+    monsterDragging = false;
+    dragHistory = [];
+    if (threw) scheduleSaveRoster();
+  }
 
   function bindMonsterDrag() {
     const onDown = (e, cx, cy, target) => {
@@ -458,8 +650,11 @@
           m.dragging = true;
           m.dragOffsetX = p.x - m.x;
           m.dragOffsetY = p.y - m.y;
-          m.vx = m.vy = 0;
-          e.preventDefault();
+          m.vx = 0;
+          m.vy = 0;
+          dragHistory = [{ x: p.x, y: p.y, time: performance.now() }];
+          monsterDragging = true;
+          if (e && e.preventDefault) e.preventDefault();
         }
       });
     };
@@ -467,28 +662,56 @@
     arena.addEventListener("mousedown", (e) => onDown(e, e.clientX, e.clientY, e.target));
     pageLayer.addEventListener("mousedown", (e) => onDown(e, e.clientX, e.clientY, e.target));
 
-    const onMove = (cx, cy) => {
+    arena.addEventListener(
+      "touchstart",
+      (e) => {
+        const t = e.touches[0];
+        if (t) onDown(e, t.clientX, t.clientY, e.target);
+      },
+      { passive: false }
+    );
+    pageLayer.addEventListener(
+      "touchstart",
+      (e) => {
+        const t = e.touches[0];
+        if (t) onDown(e, t.clientX, t.clientY, e.target);
+      },
+      { passive: false }
+    );
+
+    const onMove = (cx, cy, prevent) => {
       const p = clientToContainer(cx, cy);
       mouseX = p.x;
       mouseY = p.y;
+      if (!monsterDragging) return;
       monsters.forEach((m) => {
-        if (m.dragging) {
-          m.x = p.x - m.dragOffsetX;
-          m.y = p.y - m.dragOffsetY;
-          clampMonster(m);
-        }
+        if (!m.dragging) return;
+        dragHistory.push({ x: p.x, y: p.y, time: performance.now() });
+        if (dragHistory.length > 20) dragHistory.shift();
+        m.x = p.x - m.dragOffsetX;
+        m.y = p.y - m.dragOffsetY;
+        m.vx = 0;
+        m.vy = 0;
+        clampMonster(m);
       });
+      if (prevent) prevent();
     };
 
-    document.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY));
+    document.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY, false));
 
-    const onUp = () => {
-      monsters.forEach((m) => {
-        if (m.dragging) m.dragging = false;
-      });
-    };
-    document.addEventListener("mouseup", onUp);
-    window.addEventListener("blur", onUp);
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        const t = e.touches[0];
+        if (t) onMove(t.clientX, t.clientY, true);
+      },
+      { passive: false }
+    );
+
+    document.addEventListener("mouseup", releaseDrag);
+    document.addEventListener("touchend", releaseDrag);
+    document.addEventListener("touchcancel", releaseDrag);
+    window.addEventListener("blur", releaseDrag);
   }
   bindMonsterDrag();
 
@@ -585,7 +808,8 @@
     });
 
     window.addEventListener("resize", () => {
-      syncPageLayerBounds();
+      markPageBoundsDirty();
+      syncPageLayerBoundsIfNeeded(true);
       if (panel.style.left) {
         const c = clampPanelPos(parseInt(panel.style.left, 10) || 0, parseInt(panel.style.top, 10) || 0);
         panel.style.left = c.left + "px";
@@ -600,8 +824,16 @@
     beamBtn.title = "Beam on desktop only";
   }
 
+  markPageBoundsDirty();
+  syncPageLayerBoundsIfNeeded(true);
+  loadRoster();
   updateBeamButton();
-  syncPageLayerBounds();
+  animate();
+
+  window.addEventListener("pagehide", saveRoster);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") saveRoster();
+  });
 
   mobileMq.addEventListener("change", () => location.reload());
 })();
